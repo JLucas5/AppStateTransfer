@@ -1,19 +1,19 @@
 function capture(tab){
 
-    let msg= {
-        title: "capture-state"
+    let message = {
+        capture: "capture-state"
     }
-    chrome.runtime.sendMessage(tab.id, msg)
-
+    
+    chrome.runtime.sendMessage(tab.id, message)
     console.log("Capture message sent")
 }
 
 function restore(tab){
 
-    let msg= {
-        title: "restore-state"
+    let message = {
+        restore: "restore-state"
     }
 
-    chrome.runtime.sendMessage(tab.id, msg)
+    chrome.runtime.sendMessage(tab.id, message)
     console.log("Restore message sent")
 }
