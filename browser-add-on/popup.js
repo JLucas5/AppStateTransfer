@@ -1,19 +1,23 @@
-function capture(tab){
+function capture(){
 
     let message = {
         capture: "capture-state"
     }
     
-    chrome.runtime.sendMessage(tab.id, message)
+    chrome.runtime.sendMessage(message)
     console.log("Capture message sent")
 }
 
-function restore(tab){
+function restore(){
 
     let message = {
         restore: "restore-state"
     }
 
-    chrome.runtime.sendMessage(tab.id, message)
+    chrome.runtime.sendMessage(message)
     console.log("Restore message sent")
 }
+
+document.getElementById("capture").addEventListener("click", capture)
+
+document.getElementById("restore").addEventListener("click", restore)

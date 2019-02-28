@@ -1,5 +1,6 @@
 /*
-Receives a message from the pop.up button click
+Receives a message from the pop.up button click to capture the state;
+Then sends a message with the state to the background so that it can send it to cloud;
 */
 chrome.runtime.onMessage.addListener(function(message, sender){
     if(message.capture){
@@ -10,6 +11,9 @@ chrome.runtime.onMessage.addListener(function(message, sender){
     }
 })
 
+/*
+Retrieves or restore the DOM Tree state, the retrieve parameter dictates it.
+*/
 function domTreeTraversal(node, state, retrieve) {
     
     if(node.nodeName == "TEXTAREA") {
