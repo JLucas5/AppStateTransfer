@@ -31,10 +31,9 @@ function transfer(domState, jsState) {
         appState.push(cookies);
 
         var completeAppState = JSON.stringify({"deviceID": deviceID, "url": mgtTab.url, "state": appState});
+        
+        
         console.log("Estado da Aplicação: " + completeAppState);
-
-        // Send state to the cloud service (Firebase).
-        appStateRef.set(completeAppState);
 
         // Close Tab from all state data was retrieved
         chrome.tabs.remove(mgtTab.id);
@@ -56,14 +55,17 @@ function resume() {
  * For parameter types description, access https://developer.chrome.com/extensions/runtime#event-onMessage.
  */
 function onScriptMessage(message, sender, sendResponse) {
-    console.log("Content script message received!");
+    console.log("Content script message received: ");
     if(message.handoff) {
+        console.log("Start Handoff")
         startHandoff(message.handoff);
     }
     else if(message.domState) {
+        console.log("Transfer State")
         transfer(message.domState, message.jsState);
     }
     else if(message.resume) {
+        console.log("Resume State")
         resume(); 
     }
     else

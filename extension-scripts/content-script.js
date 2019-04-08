@@ -20,8 +20,10 @@ function domTreeTraversal(node, state, retrieve) {
                 break;
 
             default:
-                if(retrieve)
+                if(retrieve){
                     state.push(node.value);
+                    console.log("node captured");
+                }
                 else
                     node.value = state.shift();
                 break;
@@ -55,20 +57,24 @@ function transfer(jsState) {
 	console.log("Calling background to transfer...");
 	var domState = [];
     domTreeTraversal(document.body, domState, true);
-	chrome.runtime.sendMessage({"domState": domState, "jsState": jsState});
+    chrome.runtime.sendMessage({"domState": domState, "jsState": jsState});
+    console.log("DOM-State sent :" + domState)
 }
 
 // Receives message from state-gather.js and onfocus.js.
 window.addEventListener("message", function(event) {
     if(event.source == window
-            && event.data.direction
-            && event.data.direction == "from-gather-script") {
+    && event.data.direction
+    && event.data.direction == "from-gather-script") {
+        
+        console.log("Message from State-Gather received")
         transfer(event.data.message);
     }
     else if(event.source == window
-            && event.data.direction
-            && event.data.direction == "from-onfocus-script") {
-        chrome.runtime.sendMessage({"focused": event.data.message});
+        && event.data.direction
+        && event.data.direction == "from-onfocus-script") {
+            console.log("Message from onFocus received")
+            chrome.runtime.sendMessage({"focused": event.data.message});
     }
 });
 

@@ -9,6 +9,7 @@ var aitMiddleware = {
             if(prop == "$")
                 this.appState = true;
         }
+        console.log("State Gathered");
     }
 }
 
