@@ -13,6 +13,7 @@ function startHandoff() {
         mgtTab = tabs[0];
         
         // Call content script to get state.
+        console.log("StartHandoff()")
         chrome.tabs.sendMessage(mgtTab.id, {"get_state": " "});
     });
 }
@@ -30,13 +31,13 @@ function transfer(domState, jsState) {
         appState.push(domState);
         appState.push(cookies);
 
-        var completeAppState = JSON.stringify({"deviceID": deviceID, "url": mgtTab.url, "state": appState});
+        var completeAppState = JSON.stringify({"deviceID": "01", "url": mgtTab.url, "state": appState});
         
         
         console.log("Estado da Aplicação: " + completeAppState);
 
         // Close Tab from all state data was retrieved
-        chrome.tabs.remove(mgtTab.id);
+        //chrome.tabs.remove(mgtTab.id);
     });
 }
 
@@ -54,7 +55,7 @@ function resume() {
  * for chrome.runtime.onMessage.addListener.
  * For parameter types description, access https://developer.chrome.com/extensions/runtime#event-onMessage.
  */
-function onScriptMessage(message, sender, sendResponse) {
+function onScriptMessage(message) {
     console.log("Content script message received: ");
     if(message.handoff) {
         console.log("Start Handoff")

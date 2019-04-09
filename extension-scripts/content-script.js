@@ -58,7 +58,7 @@ function transfer(jsState) {
 	var domState = [];
     domTreeTraversal(document.body, domState, true);
     chrome.runtime.sendMessage({"domState": domState, "jsState": jsState});
-    console.log("DOM-State sent :" + domState)
+    console.log("DOM-State sent ")
 }
 
 // Receives message from state-gather.js and onfocus.js.
