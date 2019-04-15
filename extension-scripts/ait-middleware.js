@@ -51,8 +51,8 @@ function resume() {
 }
 
 /*
- * Receives messages from the content script and popup script. Used as callback
- * for chrome.runtime.onMessage.addListener.
+ * Receives messages from the content script and popup script. 
+ * Used as callback for chrome.runtime.onMessage.addListener.
  * For parameter types description, access https://developer.chrome.com/extensions/runtime#event-onMessage.
  */
 function onScriptMessage(message) {

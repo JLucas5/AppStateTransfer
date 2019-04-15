@@ -4,7 +4,11 @@
  */
 document.addEventListener("click", (e) => {
     if(e.target.classList.contains("handoff")) {
-        console.log("Clique")
-        chrome.runtime.sendMessage({"handoff": document.getElementById("userLocation").value});
+        console.log("Clicou Handoff")
+        chrome.runtime.sendMessage({"handoff": true});
+    }
+    else if(e.target.classList.contains("resume")) {
+        console.log("Clicou Handoff")
+        chrome.runtime.sendMessage({"resume": true})
     }
 });
