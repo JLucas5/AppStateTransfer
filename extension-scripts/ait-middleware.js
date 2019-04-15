@@ -50,6 +50,22 @@ function resume() {
         });
 }
 
+function startRecovery(){
+    //TODO
+    //GET state from REST API and save on data
+    mgtTabState = data.state;
+        var cookies = mgtTabState.pop();
+        var cookie;
+        for(var ck = 0; ck < cookies.length; ck++) {
+            cookie = cookies[ck];
+            chrome.cookies.set({url: data.url, name: cookie.name,
+                value: cookie.value, domain: cookie.domain, path: cookie.path,
+                secure: cookie.secure, httpOnly: cookie.httpOnly,
+                expirationDate: cookie.expirationDate});
+        }
+        chrome.tabs.create({"url": data.url});
+}
+
 /*
  * Receives messages from the content script and popup script. 
  * Used as callback for chrome.runtime.onMessage.addListener.
