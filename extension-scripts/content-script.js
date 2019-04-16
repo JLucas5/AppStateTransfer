@@ -67,7 +67,7 @@ window.addEventListener("message", function(event) {
     && event.data.direction
     && event.data.direction == "from-gather-script") {
         
-        console.log("Message from State-Gather received")
+        console.log("Message from State-Gather received on content-script")
         transfer(event.data.message);
     }
     else if(event.source == window
@@ -80,7 +80,7 @@ window.addEventListener("message", function(event) {
 
 // Processes messages from the background script (ait-middleware.js).
 function onBackgroundMessage(message) {
-	console.log("Background script message received!");
+	console.log("Background script message received!", message);
 	if(message.get_state) {
 		injectScript(chrome.extension.getURL('extension-scripts/state-gather.js'), 'body');
     }
@@ -101,13 +101,13 @@ function onBackgroundMessage(message) {
         chrome.runtime.sendMessage({"focused": domain});
     }
 	else
-		errorHandler("Could not call any function");
+		errorHandler("Could not call any function on content-script");
 }
 
 // Assign "onBackgroundMessage()" as a listener to messages from the background script.
 chrome.runtime.onMessage.addListener(onBackgroundMessage);
 
-chrome.runtime.sendMessage({"resume": " "});
+chrome.runtime.sendMessage({"resume": "on content-script"});
 
 injectScript(chrome.extension.getURL('extension-scripts/onfocus.js'), 'body');
 

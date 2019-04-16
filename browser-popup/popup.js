@@ -8,7 +8,7 @@ document.addEventListener("click", (e) => {
         chrome.runtime.sendMessage({"handoff": true});
     }
     else if(e.target.classList.contains("resume")) {
-        console.log("Clicou Handoff")
-        chrome.runtime.sendMessage({"resume": true})
+        console.log("Clicou Resume")
+        chrome.runtime.sendMessage({"fetchState": true})
     }
 });
