@@ -15,22 +15,20 @@
         }
     },
 
-    "permissions": ["storage", "tabs", "activeTab", "cookies", "http://*/*", "https://*/*"],
-    
+    "permissions": ["storage", "tabs", "activeTab", "cookies", "*://*/*"],
+
     "content_security_policy": "script-src 'self' https://www.gstatic.com; object-src 'self'",
 
     "background": {
         "page": "extension-scripts/background-page.html"
     },
 
-    "content_scripts": [
-        {
-            "matches": ["<all_urls>"],
-            "js": ["extension-scripts/content-script.js"]
-        }
-    ],
+    "content_scripts": [{
+        "matches": ["<all_urls>"],
+        "js": ["extension-scripts/content-script.js"]
+    }],
 
-    "web_accessible_resources" : [
+    "web_accessible_resources": [
         "extension-scripts/state-gather.js",
         "extension-scripts/state-resume.js",
         "extension-scripts/onfocus.js"
