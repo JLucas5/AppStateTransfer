@@ -107,6 +107,8 @@ function onBackgroundMessage(message) {
 // Assign "onBackgroundMessage()" as a listener to messages from the background script.
 chrome.runtime.onMessage.addListener(onBackgroundMessage);
 
+
+//Sends a message to backgroud to start a state recover if a stored state exists
 chrome.runtime.sendMessage({"resume": "on content-script"});
 
 injectScript(chrome.extension.getURL('extension-scripts/onfocus.js'), 'body');

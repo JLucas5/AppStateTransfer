@@ -4,7 +4,11 @@
  */
 var mgtTab;
 
-// Full application state, i.e, union of HTML DOM, JS Document and Cookies.
+/*
+ * Full application state, i.e, union of HTML DOM, JS Document and Cookies.
+ * mtgTabState is initiated on the background script, so it exists on the browser scope
+ * The same instance of the variable is accessible from any Tab.
+ */
 var mgtTabState = null;
 
 // Starts handoff process, calling content script to get the state
@@ -18,7 +22,7 @@ function startHandoff() {
     });
 }
 
-// Sends state through cloud service or websocket connection.
+// Sends state through Sprinkler connection.
 function transfer(domState, jsState) {
     var url = new URL(mgtTab.url);
     var domain = url.hostname;
@@ -31,17 +35,26 @@ function transfer(domState, jsState) {
         appState.push(domState);
         appState.push(cookies);
 
-        var completeAppState = JSON.stringify({ "url": mgtTab.url, "state": appState });
+        var completeAppState = JSON.stringify({"url": mgtTab.url, "state": appState});
+        
+        console.log(completeAppState);
 
-
-        console.log("Estado da Aplicação: " + completeAppState);
-
-        // Close Tab from which the state data was retrieved
+        var request = new XMLHttpRequest()
+        request.open('PUT', 'http://13.0.0.2:10338/session', false)  // `false` makes the request synchronous
+        request.send(completeAppState)
+        if (request.status === 200) {
+            console.log(request.responseText)
+          }
+        // Close Tab from all state data was retrieved
         //chrome.tabs.remove(mgtTab.id);
     });
 }
 
-// Sends current state to content script at the active Tab.
+/**
+ * Sends current state to content script at the active Tab. Checks if there is a state stored on mtgTabState
+ * Sends the state to the content script scope and empties the variable
+ */
+
 function resume() {
     if (mgtTabState != null) {
         chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
@@ -54,15 +67,17 @@ function resume() {
 
 }
 
-function startRecovery() {
-    //TODO REST API
+async function startRecovery(){
+    //TODO GET REST API
     console.log("Conecting to API")
     var request = new XMLHttpRequest()
-    request.open('GET', 'https://demo4871821.mockable.io/appstatejlucas')
-    request.onload = function(e) {
-        if (request.readyState === 4) {
-            if (request.status === 200) {
-                console.log(request.responseText)
+    request.open('GET', 'https://demo4871821.mockable.io/appstatejlucas', false)  // `false` makes the request synchronous
+    request.send(null)
+    
+    if (request.status === 200) {
+      console.log(request.responseText)
+      var fooState = request.responseText
+    }
 
                 var fooState = request.responseText
                 mgtTabState = fooState.state
@@ -88,12 +103,10 @@ function startRecovery() {
             }
         }
     }
-    xhr.onerror = function(e) {
-        console.error(xhr.statusText)
-    }
-    request.send(null)
-}
+    chrome.tabs.create({"url": fooState.url});
+    
 
+};
 
 /*
  * Receives messages from the content script and popup script. 
