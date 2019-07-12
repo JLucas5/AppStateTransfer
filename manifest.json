@@ -15,7 +15,7 @@
         }
     },
 
-    "permissions": ["storage", "tabs", "activeTab", "cookies", "*://*/*"],
+    "permissions": ["storage", "tabs", "activeTab", "cookies", "*://*/*", "webRequest"],
 
     "content_security_policy": "script-src 'self' https://www.gstatic.com; object-src 'self'",
 

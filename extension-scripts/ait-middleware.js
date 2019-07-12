@@ -30,23 +30,30 @@ function transfer(domState, jsState) {
         domain = domain.slice(domain.indexOf("."), domain.length);
 
     chrome.cookies.getAll({ domain: domain }, function(cookies) {
+       
         var appState = [];
         appState.push(jsState);
         appState.push(domState);
         appState.push(cookies);
 
+        console.log(appState)
+
         var completeAppState = JSON.stringify({"url": mgtTab.url, "state": appState});
+        var encodedState = b64EncodeUnicode(completeAppState)
         
-        console.log(completeAppState);
+        //console.log("Estado Codificado: ", encodedState);
 
         var request = new XMLHttpRequest()
-        request.open('PUT', 'http://13.0.0.2:10338/session', false)  // `false` makes the request synchronous
-        request.send(completeAppState)
-        if (request.status === 200) {
+        request.open('PUT', 'http://13.0.0.2:10338/session', false)
+        request.send(JSON.stringify({session: encodedState}));
+
+        if (request.status === '200') {
             console.log(request.responseText)
-          }
+        }
+          
         // Close Tab from all state data was retrieved
         //chrome.tabs.remove(mgtTab.id);
+
     });
 }
 
@@ -71,38 +78,34 @@ async function startRecovery(){
     //TODO GET REST API
     console.log("Conecting to API")
     var request = new XMLHttpRequest()
-    request.open('GET', 'https://demo4871821.mockable.io/appstatejlucas', false)  // `false` makes the request synchronous
+    request.open('GET', 'http://13.0.0.2:10338/session', false)  // `false` makes the request synchronous
     request.send(null)
     
     if (request.status === 200) {
-      console.log(request.responseText)
-      var fooState = request.responseText
-    }
+        var fooState = JSON.parse(b64DecodeUnicode((JSON.parse(request.responseText)).session))
+        console.log(fooState)
 
-                var fooState = request.responseText
-                mgtTabState = fooState.state
+        mgtTabState = fooState.state
 
-                var cookies = mgtTabState.pop()
-                var cookie;
-                for (var ck = 0; ck < cookies.length; ck++) {
-                    cookie = cookies[ck]
-                    chrome.cookies.set({
-                        url: fooState.url,
-                        name: cookie.name,
-                        value: cookie.value,
-                        domain: cookie.domain,
-                        path: cookie.path,
-                        secure: cookie.secure,
-                        httpOnly: cookie.httpOnly,
-                        expirationDate: cookie.expirationDate
-                    });
-                }
-                chrome.tabs.create({ "url": fooState.url })
-            } else {
-                console.error(xhr.statusText)
-            }
+        var cookies = mgtTabState.pop()
+        var cookie;
+        for (var ck = 0; ck < cookies.length; ck++) {
+            cookie = cookies[ck]
+            chrome.cookies.set({
+                url: fooState.url,
+                name: cookie.name,
+                value: cookie.value,
+                domain: cookie.domain,
+                path: cookie.path,
+                secure: cookie.secure,
+                httpOnly: cookie.httpOnly,
+                expirationDate: cookie.expirationDate
+            });
         }
+    } else {
+        console.error(xhr.statusText)
     }
+
     chrome.tabs.create({"url": fooState.url});
     
 
@@ -138,3 +141,22 @@ chrome.runtime.onMessage.addListener(onScriptMessage);
 function errorHandler(error) {
     console.log(error);
 }
+
+
+function b64EncodeUnicode(str) {
+    // first we use encodeURIComponent to get percent-encoded UTF-8,
+    // then we convert the percent encodings into raw bytes which
+    // can be fed into btoa.
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+            return String.fromCharCode('0x' + p1);
+    }));
+    }
+
+
+    function b64DecodeUnicode(str) {
+    // Going backwards: from bytestream, to percent-encoding, to original string.
+    return decodeURIComponent(atob(str).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    }
