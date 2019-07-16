@@ -54,8 +54,8 @@ function transfer(domState, jsState) {
 }
 
 /**
- * Sends current state to content script at the active Tab. Checks if there is a state stored on mtgTabState
- * Sends the state to the content script scope and empties the variable
+ * Sends current state to onBackgroundScript() on content-script at the active Tab. 
+ * Checks if there is a state stored on mtgTabState sends the state to the content-script scope and empties the variable.
  */
 
 function resume() {
@@ -70,7 +70,7 @@ function resume() {
 
 }
 
-async function startRecovery() {
+function startRecovery() {
     //TODO GET REST API
     var request = new XMLHttpRequest()
     request.open('GET', 'http://13.0.0.2:10338/session', false) // `false` makes the request synchronous

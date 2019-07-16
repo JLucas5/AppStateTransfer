@@ -81,7 +81,8 @@ function onBackgroundMessage(message) {
 
         window.postMessage({
             direction: "from-content-script",
-            message: message.resume.pop()
+            message: message.
+            resume.pop()
         }, "*");
 
         var url = new URL(window.location);
@@ -89,6 +90,7 @@ function onBackgroundMessage(message) {
         if (domain.indexOf("www") == 0)
             domain = domain.slice(domain.indexOf("."), domain.length);
         chrome.runtime.sendMessage({ "focused": domain });
+        chrome.runtime.sendMessage({ "endResumeExperiment": true})
     } else
         errorHandler("Could not call any function on content-script");
 }
