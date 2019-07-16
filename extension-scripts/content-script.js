@@ -21,7 +21,6 @@ function domTreeTraversal(node, state, retrieve) {
             default:
                 if (retrieve) {
                     state.push(node.value);
-                    console.log("node captured");
                 } else
                     node.value = state.shift();
                 break;
@@ -90,7 +89,11 @@ function onBackgroundMessage(message) {
         if (domain.indexOf("www") == 0)
             domain = domain.slice(domain.indexOf("."), domain.length);
         chrome.runtime.sendMessage({ "focused": domain });
+        
+        //Experiment code
         chrome.runtime.sendMessage({ "endResumeExperiment": true})
+        console.log("Heyy")
+        
     } else
         errorHandler("Could not call any function on content-script");
 }

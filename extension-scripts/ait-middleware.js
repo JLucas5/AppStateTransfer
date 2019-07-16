@@ -45,8 +45,7 @@ function transfer(domState, jsState) {
         if (request.status === 200) {
             console.log(request.responseText)
         }
-        chrome.runtime.sendMessage({ "endHandoffExperiment": true })
-
+        chrome.runtime.sendMessage({ "endResumeExperiment": true })
         // Close Tab from all state data was retrieved
         //chrome.tabs.remove(mgtTab.id);
 

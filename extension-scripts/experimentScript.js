@@ -6,6 +6,7 @@ var endTime = null
 function onExperimentMessage(message) {
     if (message.startHandoffExperiment) {
         initialTime = new Date()
+        console.log("start experiment")
 
     } else if (message.endHandoffExperiment) {
         endTime = new Date()
