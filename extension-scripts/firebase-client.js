@@ -32,37 +32,43 @@ var appStateRef = firebase.database().ref(baseURL + "/app-state");
 // Reference to user location.
 var userLocationRef = firebase.database().ref(baseURL + "/user-location");
 
-currentDeviceRef.on("value", function (snapshot) {
-	currentDevApp = snapshot.val();
+currentDeviceRef.on("value", function(snapshot) {
+    currentDevApp = snapshot.val();
 }, errorHandler);
 
-devicesRef.on("value", function (snapshot) {
-	devices = snapshot.val();
+devicesRef.on("value", function(snapshot) {
+    devices = snapshot.val();
 }, errorHandler);
 
-devicesIPsRef.on("value", function (snapshot) {
-	devicesIPs = snapshot.val();
+devicesIPsRef.on("value", function(snapshot) {
+    devicesIPs = snapshot.val();
 }, errorHandler);
 
-userPreferencesRef.on("value", function (snapshot) {
-	userPreferences = snapshot.val();
+userPreferencesRef.on("value", function(snapshot) {
+    userPreferences = snapshot.val();
 }, errorHandler);
 
-appStateRef.on("value", function (snapshot) {
-	var data = JSON.parse(snapshot.val());
+appStateRef.on("value", function(snapshot) {
+    var data = JSON.parse(snapshot.val());
 
-	if(deviceID != -1 && deviceID == targetID) {
+    if (deviceID != -1 && deviceID == targetID) {
         mgtTabState = data.state;
         var cookies = mgtTabState.pop();
         var cookie;
-        for(var ck = 0; ck < cookies.length; ck++) {
+        for (var ck = 0; ck < cookies.length; ck++) {
             cookie = cookies[ck];
-            chrome.cookies.set({url: data.url, name: cookie.name,
-                value: cookie.value, domain: cookie.domain, path: cookie.path,
-                secure: cookie.secure, httpOnly: cookie.httpOnly,
-                expirationDate: cookie.expirationDate});
+            chrome.cookies.set({
+                url: data.url,
+                name: cookie.name,
+                value: cookie.value,
+                domain: cookie.domain,
+                path: cookie.path,
+                secure: cookie.secure,
+                httpOnly: cookie.httpOnly,
+                expirationDate: cookie.expirationDate
+            });
         }
-        chrome.tabs.create({"url": data.url});
+        chrome.tabs.create({ "url": data.url });
     }
 }, errorHandler);
 
@@ -93,18 +99,18 @@ appStateRef.on("value", function (snapshot) {
     };
 }, errorHandler);*/
 
-userLocationRef.on("value", function (snapshot) {
-	var data = snapshot.val();
+userLocationRef.on("value", function(snapshot) {
+    var data = snapshot.val();
 
     targetID = chooseTargetDevice(data);
 
-	if(deviceID != -1 && targetID != -1 && deviceID != targetID
-            && deviceID == currentDevApp.deviceID) {
-       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (deviceID != -1 && targetID != -1 && deviceID != targetID &&
+        deviceID == currentDevApp.deviceID) {
+        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
             mgtTab = tabs[0];
-            
+
             // Call content script to get state.
-            chrome.tabs.sendMessage(mgtTab.id, {"get_state": " "});
+            chrome.tabs.sendMessage(mgtTab.id, { "get_state": " " });
         });
     }
 }, errorHandler);

@@ -1,14 +1,13 @@
 // Retreive DOM state data. Pre-Order Depth-first search.
 function domTreeTraversal(node, state, retrieve) {
-    
-    if(node.nodeName == "TEXTAREA") {
-        if(retrieve)
+
+    if (node.nodeName == "TEXTAREA") {
+        if (retrieve)
             state.push(node.value);
         else
             node.value = state.shift();
-    }
-    else if(node.nodeName == "INPUT") {
-        switch(node.type){
+    } else if (node.nodeName == "INPUT") {
+        switch (node.type) {
             case "button":
             case "checkbox":
             case "file":
@@ -20,23 +19,21 @@ function domTreeTraversal(node, state, retrieve) {
                 break;
 
             default:
-                if(retrieve){
+                if (retrieve) {
                     state.push(node.value);
                     console.log("node captured");
-                }
-                else
+                } else
                     node.value = state.shift();
                 break;
         }
-    }
-    else if(node.nodeName == "VIDEO" || node.nodeName == "AUDIO") {
-        if(retrieve)
+    } else if (node.nodeName == "VIDEO" || node.nodeName == "AUDIO") {
+        if (retrieve)
             state.push(node.currentTime);
         else
             node.currentTime = state.shift();
     }
-    
-    for(var it = node.firstChild; it != null; it = it.nextSibling)
+
+    for (var it = node.firstChild; it != null; it = it.nextSibling)
         domTreeTraversal(it, state, retrieve);
 }
 
@@ -54,41 +51,34 @@ function injectScript(file_path, tag) {
  * will call transfer function in ait-middleware.js
  */
 function transfer(jsState) {
-	console.log("Calling background to transfer...");
-	var domState = [];
+    console.log("Calling background to transfer...");
+    var domState = [];
     domTreeTraversal(document.body, domState, true);
-    chrome.runtime.sendMessage({"domState": domState, "jsState": jsState});
-    console.log("DOM-State sent ")
+    chrome.runtime.sendMessage({ "domState": domState, "jsState": jsState });
 }
 
 // Receives message from state-gather.js and onfocus.js.
 window.addEventListener("message", function(event) {
-    if(event.source == window
-    && event.data.direction
-    && event.data.direction == "from-gather-script") {
-        
-        console.log("Message from State-Gather received on content-script")
+    if (event.source == window &&
+        event.data.direction &&
+        event.data.direction == "from-gather-script") {
         transfer(event.data.message);
-    }
-    else if(event.source == window
-        && event.data.direction
-        && event.data.direction == "from-onfocus-script") {
-            console.log("Message from onFocus received")
-            chrome.runtime.sendMessage({"focused": event.data.message});
+    } else if (event.source == window &&
+        event.data.direction &&
+        event.data.direction == "from-onfocus-script") {
+        chrome.runtime.sendMessage({ "focused": event.data.message });
     }
 });
 
 // Processes messages from the background script (ait-middleware.js).
 function onBackgroundMessage(message) {
-	console.log("Background script message received!", message);
-	if(message.get_state) {
-		injectScript(chrome.extension.getURL('extension-scripts/state-gather.js'), 'body');
-    }
-	else if(message.resume) {
-		domTreeTraversal(document.body, message.resume.pop(), false);
-        
+    if (message.get_state) {
+        injectScript(chrome.extension.getURL('extension-scripts/state-gather.js'), 'body');
+    } else if (message.resume) {
+        domTreeTraversal(document.body, message.resume.pop(), false);
+
         injectScript(chrome.extension.getURL('extension-scripts/state-resume.js'), 'body');
-        
+
         window.postMessage({
             direction: "from-content-script",
             message: message.resume.pop()
@@ -96,20 +86,18 @@ function onBackgroundMessage(message) {
 
         var url = new URL(window.location);
         var domain = url.hostname;
-        if(domain.indexOf("www") == 0)
+        if (domain.indexOf("www") == 0)
             domain = domain.slice(domain.indexOf("."), domain.length);
-        chrome.runtime.sendMessage({"focused": domain});
-    }
-	else
-		errorHandler("Could not call any function on content-script");
+        chrome.runtime.sendMessage({ "focused": domain });
+    } else
+        errorHandler("Could not call any function on content-script");
 }
 
 // Assign "onBackgroundMessage()" as a listener to messages from the background script.
 chrome.runtime.onMessage.addListener(onBackgroundMessage);
 
-
 //Sends a message to backgroud to start a state recover if a stored state exists
-chrome.runtime.sendMessage({"resume": "on content-script"});
+chrome.runtime.sendMessage({ "resume": "on content-script" });
 
 injectScript(chrome.extension.getURL('extension-scripts/onfocus.js'), 'body');
 

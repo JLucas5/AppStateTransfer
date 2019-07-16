@@ -17,12 +17,11 @@ function startHandoff() {
         mgtTab = tabs[0];
 
         // Call content script to get state.
-        console.log("StartHandoff()")
         chrome.tabs.sendMessage(mgtTab.id, { "get_state": " " });
     });
 }
 
-// Sends state through Sprinkler connection.
+// Sends state through Sprinkler connection, ending the application flow.
 function transfer(domState, jsState) {
     var url = new URL(mgtTab.url);
     var domain = url.hostname;
@@ -30,27 +29,24 @@ function transfer(domState, jsState) {
         domain = domain.slice(domain.indexOf("."), domain.length);
 
     chrome.cookies.getAll({ domain: domain }, function(cookies) {
-       
+
         var appState = [];
         appState.push(jsState);
         appState.push(domState);
         appState.push(cookies);
 
-        console.log(appState)
-
-        var completeAppState = JSON.stringify({"url": mgtTab.url, "state": appState});
+        var completeAppState = JSON.stringify({ "url": mgtTab.url, "state": appState });
         var encodedState = b64EncodeUnicode(completeAppState)
-        
-        //console.log("Estado Codificado: ", encodedState);
 
         var request = new XMLHttpRequest()
         request.open('PUT', 'http://13.0.0.2:10338/session', false)
-        request.send(JSON.stringify({session: encodedState}));
+        request.send(JSON.stringify({ session: encodedState }));
 
-        if (request.status === '200') {
+        if (request.status === 200) {
             console.log(request.responseText)
         }
-          
+        chrome.runtime.sendMessage({ "endHandoffExperiment": true })
+
         // Close Tab from all state data was retrieved
         //chrome.tabs.remove(mgtTab.id);
 
@@ -74,16 +70,14 @@ function resume() {
 
 }
 
-async function startRecovery(){
+async function startRecovery() {
     //TODO GET REST API
-    console.log("Conecting to API")
     var request = new XMLHttpRequest()
-    request.open('GET', 'http://13.0.0.2:10338/session', false)  // `false` makes the request synchronous
+    request.open('GET', 'http://13.0.0.2:10338/session', false) // `false` makes the request synchronous
     request.send(null)
-    
+
     if (request.status === 200) {
         var fooState = JSON.parse(b64DecodeUnicode((JSON.parse(request.responseText)).session))
-        console.log(fooState)
 
         mgtTabState = fooState.state
 
@@ -106,8 +100,8 @@ async function startRecovery(){
         console.error(xhr.statusText)
     }
 
-    chrome.tabs.create({"url": fooState.url});
-    
+    chrome.tabs.create({ "url": fooState.url });
+
 
 };
 
@@ -117,19 +111,18 @@ async function startRecovery(){
  * For parameter types description, access https://developer.chrome.com/extensions/runtime#event-onMessage.
  */
 function onScriptMessage(message) {
-    console.log("Content script message received on - from background: ", message);
     if (message.handoff) {
-        console.log("Start Handoff - on background")
         startHandoff(message.handoff);
+
     } else if (message.domState) {
-        console.log("Transfer State - on background")
         transfer(message.domState, message.jsState);
+
     } else if (message.resume) {
-        console.log("Resume State - on background")
         resume();
+
     } else if (message.fetchState) {
-        console.log("Start recovery - on background")
         startRecovery();
+
     } else
         errorHandler("Could not call any function - on background");
 }
@@ -142,6 +135,10 @@ function errorHandler(error) {
     console.log(error);
 }
 
+/**
+ * The next two functions are used to encode and decode unicode characters.
+ * This way btoa() can be used on any string.
+ */
 
 function b64EncodeUnicode(str) {
     // first we use encodeURIComponent to get percent-encoded UTF-8,
@@ -150,13 +147,12 @@ function b64EncodeUnicode(str) {
     return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
         function toSolidBytes(match, p1) {
             return String.fromCharCode('0x' + p1);
-    }));
-    }
+        }));
+}
 
-
-    function b64DecodeUnicode(str) {
+function b64DecodeUnicode(str) {
     // Going backwards: from bytestream, to percent-encoding, to original string.
     return decodeURIComponent(atob(str).split('').map(function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
-    }
+}
