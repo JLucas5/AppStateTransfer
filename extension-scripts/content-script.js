@@ -90,10 +90,6 @@ function onBackgroundMessage(message) {
             domain = domain.slice(domain.indexOf("."), domain.length);
         chrome.runtime.sendMessage({ "focused": domain });
         
-        //Experiment code
-        chrome.runtime.sendMessage({ "endResumeExperiment": true})
-        console.log("Heyy")
-        
     } else
         errorHandler("Could not call any function on content-script");
 }

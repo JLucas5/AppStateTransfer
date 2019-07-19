@@ -4,8 +4,8 @@
 document.addEventListener("click", (e) => {
     if (e.target.classList.contains("handoff")) {
         console.log("oi")
-        chrome.runtime.sendMessage({ "handoff": true });
         chrome.runtime.sendMessage({ "startResumeExperiment": true })
+        chrome.runtime.sendMessage({ "handoff": true });
         console.log("heeeeey")
     } else if (e.target.classList.contains("resume")) {
         chrome.runtime.sendMessage({ "fetchState": true })

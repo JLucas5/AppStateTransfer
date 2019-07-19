@@ -13,5 +13,8 @@ window.addEventListener("message", function(event) {
             if (prop == "$")
                 appState = true;
         }
+            //Experiment code
+            chrome.runtime.sendMessage({ "endResumeExperiment": true})
+            console.log("Heyy")
     }
 });
