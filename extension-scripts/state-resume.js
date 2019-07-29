@@ -6,6 +6,7 @@ window.addEventListener("message", function(event) {
 
         var jsState = JSON.parse(event.data.message);
         var appState = false;
+        
         for (var prop in window) {
             if (appState && typeof window[prop] !== 'function')
                 window[prop] = jsState.shift();
@@ -13,8 +14,12 @@ window.addEventListener("message", function(event) {
             if (prop == "$")
                 appState = true;
         }
-            //Experiment code
-            chrome.runtime.sendMessage({ "endResumeExperiment": true})
-            console.log("Heyy")
+
+        //Experiment code
+        window.postMessage({
+            direction: "from-state-resume-experiment",
+            message: "experiment ended"
+        }, "*");
+        
     }
 });

@@ -61,11 +61,12 @@ window.addEventListener("message", function(event) {
     if (event.source == window &&
         event.data.direction &&
         event.data.direction == "from-gather-script") {
-        transfer(event.data.message);
+            transfer(event.data.message);
+
     } else if (event.source == window &&
         event.data.direction &&
         event.data.direction == "from-onfocus-script") {
-        chrome.runtime.sendMessage({ "focused": event.data.message });
+            chrome.runtime.sendMessage({ "focused": event.data.message });
     }
 });
 
@@ -74,7 +75,9 @@ function onBackgroundMessage(message) {
     if (message.get_state) {
         injectScript(chrome.extension.getURL('extension-scripts/state-gather.js'), 'body');
     } else if (message.resume) {
+
         domTreeTraversal(document.body, message.resume.pop(), false);
+        window.setTimeout (() => { chrome.runtime.sendMessage({ "endExperiment": true });}, 0);
 
         injectScript(chrome.extension.getURL('extension-scripts/state-resume.js'), 'body');
 
@@ -86,10 +89,13 @@ function onBackgroundMessage(message) {
 
         var url = new URL(window.location);
         var domain = url.hostname;
-        if (domain.indexOf("www") == 0)
+        if (domain.indexOf("www") == 0){
             domain = domain.slice(domain.indexOf("."), domain.length);
+        }
+        
         chrome.runtime.sendMessage({ "focused": domain });
         
+
     } else
         errorHandler("Could not call any function on content-script");
 }

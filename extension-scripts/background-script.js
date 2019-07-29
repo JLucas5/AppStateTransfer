@@ -45,10 +45,12 @@ function transfer(domState, jsState) {
         if (request.status === 200) {
             console.log(request.responseText)
         }
-        chrome.runtime.sendMessage({ "endResumeExperiment": true })
-        // Close Tab from all state data was retrieved
-        //chrome.tabs.remove(mgtTab.id);
 
+        //Experiment code. (Delete this if you want)
+        endExperiment()
+
+
+        //chrome.tabs.remove(mgtTab.id);
     });
 }
 
@@ -111,6 +113,7 @@ function startRecovery() {
  */
 function onScriptMessage(message) {
     if (message.handoff) {
+        console.log("Iniciar Handoff")
         startHandoff(message.handoff);
 
     } else if (message.domState) {
@@ -120,10 +123,11 @@ function onScriptMessage(message) {
         resume();
 
     } else if (message.fetchState) {
+        console.log("iniciar Restauração")
         startRecovery();
 
-    } else
-        errorHandler("Could not call any function - on background");
+    } else{}
+        //errorHandler("Could not call any function - on background");
 }
 
 // Assign "onScriptMessage()" as a listener to messages from the content script and popup script.
@@ -155,3 +159,36 @@ function b64DecodeUnicode(str) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
 }
+
+/**
+ * The following code is for pure experimental purpose. 
+ * It's only objective is to calculate the handoff overhead
+ * This code is a mess, don't try to understand, you probably(hopefully) don't need to use anyway.
+ * You can erase it if you want, there are walso some experimental code on state-resume.js and in
+ */
+
+var experimentData = []
+
+var initialTime = null
+var endTime = null
+
+function onExperimentMessage(message) {
+  
+    if (message.handoff || message.fetchState) {
+        initialTime = new Date()
+        console.log("Experiment count start")
+
+    } else if (message.endExperiment){
+        endTime = new Date()
+        experimentData.push(endTime - initialTime)
+        console.log(experimentData)
+    }
+}
+
+function endExperiment(){
+    endTime = new Date()
+    experimentData.push(endTime - initialTime)
+    console.log(experimentData)
+}
+
+chrome.runtime.onMessage.addListener(onExperimentMessage);
