@@ -1,4 +1,4 @@
-## AppStateTransfer - Um middlware para migração de aplicações Web
+## AppStateTransfer - Um middleware para migração de aplicações Web
 
 Esse middleware tem como objetivo promover um serviço de migração de aplicações Web, possuindo um mínimo de transparência e segurança.
 Foi desenvolvido como um extensão de navegador, tendo como prioridade ser executado no navegador [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/new/).
